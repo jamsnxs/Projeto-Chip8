@@ -1,28 +1,42 @@
 #include <raylib.h>
 
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 int main() {
-  const int screen_width = 64;
-  const int screen_height = 32;
+  InitWindow(640, 320, "CHIP-8 Emulator");
+  SetWindowState(FLAG_WINDOW_RESIZABLE);
 
-  const int scale = 10;
-  const int screen_scale_width = screen_width * scale;
-  const int screen_scale_height = screen_height * scale;
+  int scale = MIN(GetScreenWidth() / 64, GetScreenHeight() / 32);
+  int offsetX = (GetScreenWidth() - (64 * scale)) / 2;
+  int offsetY = (GetScreenHeight() - (32 * scale)) / 2;
+  SetTargetFPS(60);
 
-  InitWindow(screen_scale_width, screen_scale_height, "CHIP-8 Emulator");
-  SetTargetFPS(120);
-
-  int sprite_x = 32;
-  int sprite_y = 16;
-  int sprite_width = 1;
-  int sprite_height = 1;
+  bool tela[32][64] = {0};
+  int x = 32, y = 16;
 
   while (!WindowShouldClose()) {
+    if (IsWindowResized()) {
+      scale = MIN(GetScreenWidth() / 64, GetScreenHeight() / 32);
+      offsetX = (GetScreenWidth() - (64 * scale)) / 2;
+      offsetY = (GetScreenHeight() - (32 * scale)) / 2;
+    }
+
     BeginDrawing();
     ClearBackground(BLACK);
-    DrawText("CHIP-8 Window", 220, 200, 20, RAYWHITE);
+    if (IsKeyDown(KEY_S) && y < 31) {
+      tela[y][x] = 0;
+      y += 1;
+    }
 
-    DrawRectangle(sprite_x * scale, sprite_y * scale, sprite_width * scale,
-                  sprite_height * scale, WHITE);
+    tela[y][x] = 1;
+
+    for (int y = 0; y < 32; y++) {
+      for (int x = 0; x < 64; x++) {
+        if (tela[y][x]) {
+          DrawRectangle(offsetX + (x * scale), offsetY + (y * scale), scale,
+                        scale, RAYWHITE);
+        }
+      }
+    }
 
     EndDrawing();
   }
